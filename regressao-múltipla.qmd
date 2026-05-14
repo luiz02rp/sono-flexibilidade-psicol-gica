@@ -1,5 +1,32 @@
 ---
 title: "regressao-múltipla"
 format: html
+editor_options: 
+  chunk_output_type: console
 ---
+
+# Carregando pacotes
+
+```{r}
+library(tidyverse)
+library(ISLR)
+library(performance)
+library(parameters)
+library(readxl)
+```
+
+# Carregando banco de dados
+
+```{r}
+df <- read_excel("df.xlsx")
+```
+
+Objetivo: análise de regressão, colocando o sono como VD e as seguintes variáveis como VIs: sexo, idade, ansiedade, depressão e flexibilidade psicológica
+
+# selecionando variáveis de interesse
+```{r}
+df_analise <- df |> 
+  select(3:47) 
+```
+
 
