@@ -1,5 +1,80 @@
 ---
 title: "descritiva"
 format: html
+editor_options: 
+  chunk_output_type: console
 ---
+
+```{r}
+library(tidyverse)
+library(flextable)
+library(officer)
+```
+
+```{r}
+df_descritiva <- read_excel("df.xlsx")
+```
+
+```{r}
+df_descritiva <- df_descritiva |> 
+  select(sexo = `Qual o seu sexo?`,
+         genero = `Qual o seu gênero?`,
+         idade = `Qual a sua idade?`,
+         escolaridade = `Qual sua escolaridade?`,
+         estado_civil = `Qual o seu estado civil?`,
+         situacao_ocupacional = `Qual a sua situação ocupacional?`,
+         estado = `Em qual estado você mora?`) |> 
+  mutate(
+    sexo = na_if(sexo, "Sexualmente atraído por você gatinho")
+  )
+```
+
+sexo
+```{r}
+df_descritiva |>
+  group_by(sexo) |> 
+  summarise(n = n(),
+            perc = n / 171  * 100)
+```
+
+idade
+```{r}
+df_descritiva |> 
+  summarise(media = mean(idade, na.rm = T),
+            mediana = median(idade, na.rm = T),
+            dp = sd(idade, na.rm = T),
+            min = min(idade, na.rm = T),
+            max = max (idade, na.rm = T))
+```
+
+escolaridade
+```{r}
+df_descritiva |>
+  group_by(escolaridade) |> 
+  summarise(n = n(),
+            perc = n / 171 * 100
+            ) 
+```
+
+estado civil
+```{r}
+df_descritiva |> 
+  count(estado_civil)
+
+
+df_descritiva |> 
+  group_by(estado_civil) |> 
+  summarise(n = n(),
+            perc = n / 171 * 100
+            )
+```
+
+situacao_ocupacional
+```{r}
+df_descritiva |> 
+  group_by(situacao_ocupacional) |> 
+  summarise(n = n(),
+            perc = n / 171 * 100
+            )
+```
 
