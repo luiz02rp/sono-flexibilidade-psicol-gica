@@ -1,0 +1,169 @@
+---
+title: "regressao-múltipla"
+format: html
+editor_options: 
+  chunk_output_type: console
+---
+
+# Carregando pacotes
+
+```{r}
+library(tidyverse)
+library(ISLR)
+library(performance)
+library(parameters)
+library(readxl)
+library(ggeffects)
+library(lmtest)
+library(broom)
+library(car)
+library(rstatix)
+```
+
+# Carregando banco de dados
+
+```{r}
+df <- read_excel("df.xlsx")
+```
+
+# manipulando banco de dados: renomeando variáveis, colocando níveis da escala likert, criando novas variáveis com escores nos construtos
+```{r}
+# renomeando variáveis
+df_analise <- df |> 
+  select(3:47) |> 
+  rename_with(~ paste0("msq_", 1:10), 1:10) |> 
+  rename_with(~ paste0("phq_", 1:9), 11:19)|> 
+  rename_with(~ paste0("gad_", 1:7), 20:26) |> 
+  rename_with(~ paste0("rrs_", 1:10), 27:36) |> 
+  rename_with(~ paste0("psyflex_", 1:6), 37:42) |> 
+  select(-starts_with("rrs_")) 
+  
+
+# colocando níveis da escala likert
+df_analise <- df_analise |> 
+  mutate(across(starts_with("msq_"),
+                ~ case_match(., 
+                             "Nunca" ~ 1,
+                             "Raramente" ~ 2,
+                             "Às vezes" ~ 3,
+                             "Frequentemente" ~ 4,
+                             "Sempre" ~ 5)),
+         across(starts_with("phq_"),
+                ~ case_match(.,
+                             "Nunca" ~ 0, 
+                             "Alguns dias" ~ 1,
+                             "Mais da metade dos dias" ~ 2,
+                             "Quase todos os dias" ~ 3)),
+         across(starts_with("gad_"),
+                ~ case_match(.,
+                             "Nenhuma vez" ~ 0,
+                             "Alguns dias" ~ 1,
+                             "Mais da metade dos dias" ~ 2,
+                             "Quase todos os dias" ~ 3)),
+         across(starts_with("psyflex_"),
+                ~ case_match(.,
+                             "Muito raramente" ~ 1,
+                             "Raramente" ~ 2,
+                             "De vez em quando" ~ 3,
+                             "Frequentemente" ~ 4,
+                             "Muito frequentemente" ~ 5))) 
+
+# criando novas variáveis com escores, renomeando outras variáveis de controle e retirando variável gênero
+
+df_analise <- df_analise |> 
+  mutate(
+    # sono
+    qualidade_sono = rowSums(pick(starts_with("msq_")), na.rm = T),
+    # felxibilidade psicológica
+    flexibilidade_psicologica = rowSums(pick(starts_with("psyflex_")), na.rm = T),
+    # ansiedade
+    ansiedade = rowSums(pick(starts_with("gad_")), na.rm = T),
+    # depressão
+    depressao = rowSums(pick(starts_with("phq_")), na.rm = T)
+    ) |> 
+  rename(sexo = `Qual o seu sexo?`,
+         idade = `Qual a sua idade?`) |> 
+  select(-34)
+```
+
+
+Invalidando resposta de um caso e criando fator
+```{r}
+df_analise <- df_analise |> 
+  mutate(sexo = na_if(sexo, "Sexualmente atraído por você gatinho"),
+         sexo = as.factor(sexo))
+```
+
+Objetivo: análise de regressão, colocando o sono como VD e as seguintes variáveis como VIs: sexo, idade, ansiedade, depressão e flexibilidade psicológica
+
+Construindo o modelo de regressão
+```{r}
+m1 <- lm(qualidade_sono ~ sexo + idade + ansiedade + depressao + flexibilidade_psicologica, data = df_analise)
+
+m2 <- lm(qualidade_sono ~ sexo + idade + ansiedade + depressao + psyflex_1 + psyflex_2 + psyflex_3 + psyflex_4 + psyflex_5 + psyflex_6, data = df_analise)
+
+anova(m1, m2)
+```
+
+Coeficientes padronizados
+```{r}
+coef_padronizados <- parameters(m1, standardize = "basic", vcov = "vcovBS", vcov_args = list(R= 500))
+```
+
+Pressupostos
+
+linearidade
+```{r}
+# gráficos
+m1 |> 
+  augment() |> 
+  ggplot(aes(.fitted, .resid))+
+  geom_point(alpha = 0.3)+
+  geom_smooth(color = "red", se = F)+
+  geom_hline(yintercept = 0,
+             linetype = "dashed",
+             color = "black",
+             linewidth = 1)
+
+# testes formais
+harvtest(m1)
+raintest(m1)
+resettest(m1)
+```
+
+Colinearidade
+```{r}
+check_collinearity(m1)
+```
+
+Independência dos resíduos
+```{r}
+check_autocorrelation(m1)
+```
+
+Homocedasticidade
+```{r}
+check_heteroscedasticity(m1)
+
+ncvTest(m1)
+```
+
+Normalidade dos resíduos
+```{r}
+check_normality(m1)
+
+normalidade <- shapiro_test(residuals(m1))
+```
+
+Outliers e casos influentes
+```{r}
+m1_aug <- m1 |> 
+  augment() |> 
+  rowid_to_column()
+
+m1_aug |> 
+  filter(abs(.std.resid) > 2)
+
+m1_aug |> 
+  filter(abs(.std.resid) > 3)
+```
