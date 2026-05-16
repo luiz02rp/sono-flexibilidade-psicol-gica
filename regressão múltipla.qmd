@@ -107,7 +107,15 @@ anova(m1, m2)
 
 Coeficientes padronizados
 ```{r}
-coef_padronizados <- parameters(m1, standardize = "basic", vcov = "vcovBS", vcov_args = list(R= 500))
+std <- model_parameters(m2, standardize = "basic")
+
+
+# fazer tabela
+std %>% 
+  select(-CI, -df_error) %>% 
+  flextable() %>% 
+  colformat_double(digits = 3) %>% 
+  set_caption("Coeficientes de regressão")
 ```
 
 Pressupostos
