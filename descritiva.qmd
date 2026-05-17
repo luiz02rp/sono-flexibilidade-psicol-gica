@@ -9,6 +9,7 @@ editor_options:
 library(tidyverse)
 library(flextable)
 library(officer)
+library(readxl)
 ```
 
 ```{r}
@@ -49,6 +50,9 @@ df_descritiva |>
 
 escolaridade
 ```{r}
+df_descritiva |> 
+  distinct(escolaridade)
+
 df_descritiva |>
   group_by(escolaridade) |> 
   summarise(n = n(),
@@ -60,6 +64,9 @@ estado civil
 ```{r}
 df_descritiva |> 
   count(estado_civil)
+
+df_descritiva |> 
+  distinct(estado_civil)
 
 
 df_descritiva |> 
