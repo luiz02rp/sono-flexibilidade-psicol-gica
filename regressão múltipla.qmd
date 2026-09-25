@@ -24,7 +24,7 @@ library(flextable)
 # Carregando banco de dados
 
 ```{r}
-df <- read_excel("df.xlsx")
+df <- read_excel("Pesquisa  (respostas).xlsx")
 ```
 
 # manipulando banco de dados: renomeando variáveis, colocando níveis da escala likert, criando novas variáveis com escores nos construtos
