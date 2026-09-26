@@ -108,7 +108,7 @@ anova(m1, m2)
 
 Coeficientes padronizados
 ```{r}
-std <- model_parameters(m2, standardize = "basic")
+std <- model_parameters(m1, standardize = "basic")
 
 
 # fazer tabela
@@ -135,43 +135,43 @@ m1 |>
              linewidth = 1)
 
 # testes formais
-harvtest(m2)
-raintest(m2)
-resettest(m2)
+harvtest(m1)
+raintest(m1)
+resettest(m1)
 ```
 
 Colinearidade
 ```{r}
-check_collinearity(m2) 
+check_collinearity(m1) 
   
 ```
 
 Independência dos resíduos
 ```{r}
-check_autocorrelation(m2)
+check_autocorrelation(m1)
 
 set.seed(123)
-ind_resid <- durbinWatsonTest(m2)
+ind_resid <- durbinWatsonTest(m1)
 ```
 
 Homocedasticidade
 ```{r}
-check_heteroscedasticity(m2)
+check_heteroscedasticity(m1)
 
-bptest(m2)
+bptest(m1)
 ```
 
 Normalidade dos resíduos
 ```{r}
-check_normality(m2)
+check_normality(m1)
 
-residuos_m2 <- residuals(m2)
-nortest::ad.test(residuos_m2)
+residuos_m1 <- residuals(m1)
+nortest::ad.test(residuos_m1)
 ```
 
 Outliers e casos influentes
 ```{r}
-m1_aug <- m2 |> 
+m1_aug <- m1 |> 
   augment() |> 
   rowid_to_column()
 
@@ -185,7 +185,7 @@ m1_aug |>
 alavancagem e distância de cook
 ```{r}
 # alavancagem
-valores_hat <- hatvalues(m2) 
+valores_hat <- hatvalues(m1) 
 
 k <- 10
 n <- 171
@@ -194,7 +194,7 @@ limite_leverage <- (3 * (k + 1)) / n
 altos_leverage <- which(valores_hat > limite_leverage)
 
 # distância de cook
-dist_cook <- cooks.distance(m2)
+dist_cook <- cooks.distance(m1)
 alta_cook <- which(dist_cook > 1)
 
 

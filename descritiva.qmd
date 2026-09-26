@@ -82,6 +82,7 @@ df_descritiva |>
   group_by(situacao_ocupacional) |> 
   summarise(n = n(),
             perc = n / 527 * 100
-            )
+            ) |> 
+  arrange(desc(perc))
 ```
 
