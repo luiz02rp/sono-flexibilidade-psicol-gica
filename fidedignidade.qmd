@@ -1,0 +1,26 @@
+---
+title: "fidedignidade"
+format: html
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+library(tidyverse)
+library(psych)
+library(see)
+```
+# escala de sono (msq)
+```{r}
+# banco com itens da escala
+itens_msq <- df_analise |> 
+  select(msq_1:msq_10)
+# alfa
+alfa_msq <- alpha(itens_msq)
+```
+# escala da flexibilidade psicológica
+```{r}
+itens_psyflex <- df_analise |> 
+  select()
+```
+

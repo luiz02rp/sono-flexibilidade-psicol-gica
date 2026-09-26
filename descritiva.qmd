@@ -13,7 +13,7 @@ library(readxl)
 ```
 
 ```{r}
-df_descritiva <- read_excel("df.xlsx")
+df_descritiva <- read_excel("Pesquisa  (respostas).xlsx")
 ```
 
 ```{r}
@@ -35,7 +35,7 @@ sexo
 df_descritiva |>
   group_by(sexo) |> 
   summarise(n = n(),
-            perc = n / 171  * 100)
+            perc = n / 527  * 100)
 ```
 
 idade
@@ -56,7 +56,7 @@ df_descritiva |>
 df_descritiva |>
   group_by(escolaridade) |> 
   summarise(n = n(),
-            perc = n / 171 * 100
+            perc = n / 527 * 100
             ) 
 ```
 
@@ -72,7 +72,7 @@ df_descritiva |>
 df_descritiva |> 
   group_by(estado_civil) |> 
   summarise(n = n(),
-            perc = n / 171 * 100
+            perc = n / 527 * 100
             )
 ```
 
@@ -81,7 +81,7 @@ situacao_ocupacional
 df_descritiva |> 
   group_by(situacao_ocupacional) |> 
   summarise(n = n(),
-            perc = n / 171 * 100
+            perc = n / 527 * 100
             )
 ```
 
