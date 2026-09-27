@@ -15,10 +15,13 @@ library(parameters)
 library(readxl)
 library(ggeffects)
 library(lmtest)
+library(effectsize)
 library(broom)
 library(car)
+library(see)
 library(rstatix)
 library(flextable)
+library(sandwich)
 ```
 
 # Carregando banco de dados
@@ -135,14 +138,14 @@ m1 |>
              linewidth = 1)
 
 # testes formais
-harvtest(m1)
+harvtest(m)
 raintest(m1)
 resettest(m1)
 ```
 
 Colinearidade
 ```{r}
-check_collinearity(m1) 
+check_collinearity(m) 
   
 ```
 
@@ -199,4 +202,38 @@ alta_cook <- which(dist_cook > 1)
 
 
 ```
+# correção de heterocedasticidade
+```{r}
+robust_cov <- sandwich::vcovHC(m1, type = "HC3")
+robust_results <- lmtest::coeftest(m1, vcov = robust_cov)
+
+
+# Para IC robustos nos coeficientes
+robust_CI <- coeftest(m1, vcov = robust_cov)
+robust_CI_df <- data.frame(
+  Estimate = robust_CI[,1],
+  Std.Error = robust_CI[,2],
+  t.value = robust_CI[,3],
+  p.value = robust_CI[,4],
+  Lower = robust_CI[,1] - qt(0.975, df = m1$df.residual) * robust_CI[,2],
+  Upper = robust_CI[,1] + qt(0.975, df = m1$df.residual) * robust_CI[,2]
+)
+```
+# padronizar preditores
+```{r}
+
+```
+# ajustar modelo padronizado
+```{r}
+
+```
+# correção de heterocedasticidade com erros-padrão robusto
+```{r}
+
+```
+# Intervalos de confiança robustos para os betas padronizados
+```{r}
+
+```
+
 
