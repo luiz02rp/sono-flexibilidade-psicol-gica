@@ -9,8 +9,11 @@ editor_options:
 library(tidyverse)
 library(psych)
 library(see)
+library(lavaan)
+library(semTools)
 ```
 # escala de sono (msq)
+## confiabilidade geral
 ```{r}
 # banco com itens da escala
 itens_msq <- df_analise |> 
@@ -18,9 +21,54 @@ itens_msq <- df_analise |>
 # alfa
 alfa_msq <- alpha(itens_msq)
 ```
+## confiabilidade das subescalas
+```{r}
+# insônia
+itens_msq_insonia <- df_analise |> 
+  select(msq_7, msq_2, msq_6, msq_8)
+
+alfa_msq_insonia <- alpha(itens_msq_insonia)
+
+# hipersonia
+itens_msq_hipersonia <- df_analise |> 
+  select(msq_9, msq_4, msq_3, msq_10, msq_1, msq_5)
+
+alfa_msq_hipersonia <- alpha(itens_msq_hipersonia)
+```
+
 # escala da flexibilidade psicológica
 ```{r}
+# geral
 itens_psyflex <- df_analise |> 
-  select()
+  select(psyflex_1:psyflex_6)
+
+alfa_psyflex <- alpha(itens_psyflex)
+```
+# escala de ansiedade
+```{r}
+# geral
+itens_gad <- df_analise |> 
+  select(gad_1:gad_7)
+# alfa
+alfa_gad <- alpha(itens_gad)
+# confiabilidade composta
+## definindo modelo
+modelo_gad <- 'gad =~ gad_1 + gad_2 + gad_3 + gad_4 + gad_5 + gad_6 + gad_7'
+## índices da cfa
+cfa_gad <- cfa(modelo_gad, data = df_analise)
+## confiabilidade composta
+cargas <- standardizedSolution(cfa_gad)
+cargas <- subset(cargas, op == "=~")$est.std
+## fórmula
+cp <- (sum(cargas))^2 / ((sum(cargas))^2 + sum(1 - cargas^2))
+```
+# Escala de depressão
+```{r}
+# geral
+itens_phq <- df_analise |> 
+  select(phq_1:phq_9)
+
+alfa_phq <- alpha(itens_phq)
+omega_phq <- omega(itens_phq, nfactors = 1)
 ```
 
