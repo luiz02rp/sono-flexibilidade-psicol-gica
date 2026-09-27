@@ -138,14 +138,14 @@ m1 |>
              linewidth = 1)
 
 # testes formais
-harvtest(m)
+harvtest(m1)
 raintest(m1)
 resettest(m1)
 ```
 
 Colinearidade
 ```{r}
-check_collinearity(m) 
+check_collinearity(m1) 
   
 ```
 
@@ -208,7 +208,7 @@ robust_cov <- sandwich::vcovHC(m1, type = "HC3")
 robust_results <- lmtest::coeftest(m1, vcov = robust_cov)
 
 
-# Para IC robustos nos coeficientes
+# Para IC robustos nos coeficientes (valores brutos)
 robust_CI <- coeftest(m1, vcov = robust_cov)
 robust_CI_df <- data.frame(
   Estimate = robust_CI[,1],
@@ -221,19 +221,33 @@ robust_CI_df <- data.frame(
 ```
 # padronizar preditores
 ```{r}
+var_mod <- c("idade", "qualidade_sono", "flexibilidade_psicologica", "ansiedade", "depressao")
 
+var_mod_std <- df_analise |> 
+  mutate(across(all_of(var_mod), scale))
 ```
 # ajustar modelo padronizado
 ```{r}
-
+m3 <- lm(qualidade_sono ~ sexo + idade + ansiedade + depressao + flexibilidade_psicologica, data = var_mod_std)
 ```
 # correção de heterocedasticidade com erros-padrão robusto
 ```{r}
-
+robust_cov_std <- vcovHC(m3, type = "HC3")
+robust_results_z <- coeftest(m3, vcov = robust_cov_std)
 ```
 # Intervalos de confiança robustos para os betas padronizados
 ```{r}
-
+tabela_reg_std <- data.frame(
+  beta = robust_results_z[, 1],
+  erro_padrao = robust_results_z[, 2],
+  t = robust_results_z[, 3],
+  p_valor = robust_results_z[, 4],
+  limite_inferior = robust_results_z[, 1] - qt(0.975, df = m3$df.residual) * robust_results_z[, 2],
+  limite_superior = robust_results_z[, 1] + qt(0.975, df = m3$df.residual)*robust_results_z[, 2]
+) |> 
+  rownames_to_column() |> 
+  as_tibble() 
+  
 ```
 
 
