@@ -248,7 +248,8 @@ tabela_reg_std <- data.frame(
 ) |> 
   rownames_to_column() |> 
   as_tibble() |> 
-  mutate(across(where(is.numeric), \ (x) round(x, 3)))
+  mutate(across(where(is.numeric), \ (x) round(x, 3))) |> 
+  select(-erro_padrao)
   
 ```
 
